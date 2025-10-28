@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: rtc-scheduler-demo
+    runtime: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /
+        destination: /mockup-enhanced.html
