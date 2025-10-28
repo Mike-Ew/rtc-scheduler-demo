@@ -3,11 +3,10 @@
 Interactive demo mockup for Residential Treatment Center scheduling system.
 
 ## Files
-- `mockup.html` - Basic demo
-- `mockup-enhanced.html` - Full-featured demo with coordinator/staff views
+- `index.html` - Full-featured responsive demo with coordinator/staff views
 
 ## View Demo
-Open either HTML file directly in a browser - no server needed.
+Open `index.html` directly in a browser — no server needed.
 
 ## Features
 - Daily coverage board

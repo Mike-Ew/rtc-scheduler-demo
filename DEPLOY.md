@@ -8,30 +8,55 @@
 ### Render CLI Note
 The Render CLI (`render` command) is installed but only manages **existing** services. To create a new service, use the Dashboard below.
 
-### Deploy via Render Dashboard (Required for New Services)
+### Deploy via Render Dashboard (Step-by-Step)
 
-**Quick Steps:**
+**Step 1: Go to Render Dashboard**
+```
+https://dashboard.render.com
+```
 
-1. **Go to Render Dashboard**
-   ```
-   https://dashboard.render.com/select-repo?type=static
-   ```
+**Step 2: Create New Static Site**
+- Click the **"New +"** button (top right)
+- Select **"Static Site"**
 
-2. **Connect Repository**
-   - Click **"Configure account"** if GitHub isn't connected yet
-   - Grant Render access to `Mike-Ew/rtc-scheduler-demo` repository
-   - Click **"Connect"** next to `rtc-scheduler-demo`
+**Step 3: Connect GitHub Repository**
 
-3. **Configure Service** (auto-filled from `render.yaml`):
-   - **Name**: `rtc-scheduler-demo`
-   - **Branch**: `main`
-   - **Root Directory**: (leave empty)
-   - **Build Command**: (leave empty)
-   - **Publish Directory**: `.`
+If this is your first time:
+- Click **"Configure account"** under GitHub
+- Authorize Render to access your GitHub
+- Select either:
+  - **"All repositories"** (easier), or
+  - **"Only select repositories"** → choose `rtc-scheduler-demo`
+- Click **"Install & Authorize"**
 
-4. **Create Static Site**
-   - Click **"Create Static Site"**
-   - Deployment starts automatically!
+If GitHub is already connected:
+- Look for `Mike-Ew/rtc-scheduler-demo` in the repository list
+- If you don't see it:
+  - Click **"Configure account"**
+  - Add `rtc-scheduler-demo` to the allowed repositories
+  - Go back to Render dashboard
+
+**Step 4: Connect the Repository**
+- Find `Mike-Ew/rtc-scheduler-demo` in the list
+- Click **"Connect"** button next to it
+
+**Step 5: Configure Service**
+Fill in these settings:
+- **Name**: `rtc-scheduler-demo`
+- **Branch**: `main`
+- **Root Directory**: (leave blank)
+- **Build Command**: (leave blank)
+- **Publish Directory**: `.` (just a period)
+
+**Step 6: Create Static Site**
+- Click **"Create Static Site"** at the bottom
+- Wait 30-60 seconds for deployment
+- Your site will be live!
+
+**Troubleshooting "Not Found":**
+- ✅ Repo exists at: https://github.com/Mike-Ew/rtc-scheduler-demo
+- ⚠️ Repo is **private** - Render needs GitHub permission to access it
+- 💡 Solution: Complete Step 3 above to grant Render access
 
 ### After Deployment - Using Render CLI
 
@@ -54,9 +79,7 @@ render restart --service rtc-scheduler-demo
 ## Access Your Demo
 
 After deployment (takes 1-2 minutes):
-- **Main Demo**: `https://rtc-scheduler-demo.onrender.com` (redirects to enhanced mockup)
-- **Basic Version**: `https://rtc-scheduler-demo.onrender.com/mockup.html`
-- **Enhanced Version**: `https://rtc-scheduler-demo.onrender.com/mockup-enhanced.html`
+- **Main Demo**: `https://rtc-scheduler-demo.onrender.com`
 
 ## Features Available
 
@@ -82,7 +105,7 @@ Once deployed, share the Render URL directly with your client. The demo is:
 To update after making changes:
 ```bash
 git add .
-git commit -m "Update mockup"
+git commit -m "Update demo"
 git push
 ```
 
