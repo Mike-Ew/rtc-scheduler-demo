@@ -5,30 +5,51 @@
 
 ## Deploy to Render
 
-### Option 1: Render Dashboard (Recommended)
+### Render CLI Note
+The Render CLI (`render` command) is installed but only manages **existing** services. To create a new service, use the Dashboard below.
 
-1. Go to https://dashboard.render.com
-2. Click **"New +"** → **"Static Site"**
-3. Connect your GitHub account if not already connected
-4. Select the repository: `Mike-Ew/rtc-scheduler-demo`
-5. Configure:
+### Deploy via Render Dashboard (Required for New Services)
+
+**Quick Steps:**
+
+1. **Go to Render Dashboard**
+   ```
+   https://dashboard.render.com/select-repo?type=static
+   ```
+
+2. **Connect Repository**
+   - Click **"Configure account"** if GitHub isn't connected yet
+   - Grant Render access to `Mike-Ew/rtc-scheduler-demo` repository
+   - Click **"Connect"** next to `rtc-scheduler-demo`
+
+3. **Configure Service** (auto-filled from `render.yaml`):
    - **Name**: `rtc-scheduler-demo`
    - **Branch**: `main`
-   - **Build Command**: Leave empty or `echo "No build needed"`
-   - **Publish Directory**: `.` (root)
-6. Click **"Create Static Site"**
+   - **Root Directory**: (leave empty)
+   - **Build Command**: (leave empty)
+   - **Publish Directory**: `.`
 
-Render will automatically detect the `render.yaml` configuration and deploy!
+4. **Create Static Site**
+   - Click **"Create Static Site"**
+   - Deployment starts automatically!
 
-### Option 2: Render Blueprint (Automated)
+### After Deployment - Using Render CLI
 
-Click this button to deploy automatically:
+Once your service exists, you can manage it with CLI:
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Mike-Ew/rtc-scheduler-demo)
+```bash
+# View all services
+render services list -o json
 
-### Option 3: Manual via render.yaml
+# View recent deploys
+render deploys list --service rtc-scheduler-demo -o json
 
-The repository already includes `render.yaml`. Render will auto-detect and use it when you connect the repo.
+# View logs
+render logs --service rtc-scheduler-demo
+
+# Trigger manual deploy
+render restart --service rtc-scheduler-demo
+```
 
 ## Access Your Demo
 
