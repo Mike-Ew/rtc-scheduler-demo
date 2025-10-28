@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTC Scheduler - Full Feature Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Design Tokens */
+        :root {
+            --color-primary: #2563EB;
+            --color-primary-dark: #1E40AF;
+            --color-secondary: #0EA5E9;
+            --color-success: #16A34A;
+            --color-warning: #F59E0B;
+            --color-error: #DC2626;
+            --color-neutral-900: #111827;
+            --color-neutral-700: #374151;
+            --color-neutral-500: #6B7280;
+            --color-neutral-200: #E5E7EB;
+            --color-background: #F8FAFC;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            line-height: 24px;
+            color: var(--color-neutral-700);
+            background-color: var(--color-background);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 32px;
+            color: var(--color-neutral-900);
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 28px;
+            color: var(--color-neutral-900);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 24px;
+            color: var(--color-neutral-900);
+        }
+
+        .small {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* App Bar */
+        .app-bar {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-lg);
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-bar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xl);
+        }
+
+        .app-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-neutral-900);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .demo-badge {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-lg);
+            height: 64px;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-sm);
+            color: var(--color-neutral-500);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all 150ms;
+            cursor: pointer;
+        }
+
+        .nav-tab:hover {
+            color: var(--color-neutral-700);
+        }
+
+        .nav-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .app-bar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .view-switcher {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs);
+            background: var(--color-background);
+            border-radius: var(--radius-sm);
+        }
+
+        .view-option {
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-neutral-700);
+            cursor: pointer;
+            transition: all 150ms;
+            border: none;
+            background: transparent;
+        }
+
+        .view-option.active {
+            background: white;
+            color: var(--color-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .notification-badge {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .notification-badge:hover {
+            background: var(--color-background);
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--color-error);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .user-menu {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .user-menu:hover {
+            background: var(--color-primary-dark);
+        }
+
+        /* Context Bar */
+        .context-bar {
+            min-height: 56px;
+            background: white;
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+            position: sticky;
+            top: 64px;
+            z-index: 99;
+        }
+
+        .context-control {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .select-button {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-sm);
+            background: white;
+            color: var(--color-neutral-700);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: all 150ms;
+        }
+
+        .select-button:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .icon-button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-sm);
+            background: white;
+            color: var(--color-neutral-700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .icon-button:hover {
+            background: var(--color-background);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .date-display {
+            font-weight: 500;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .context-actions {
+            margin-left: auto;
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 150ms;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+
+        .section-header {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .toggle-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-200);
+            background: white;
+            color: var(--color-neutral-700);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .toggle-btn:first-child {
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+        }
+
+        .toggle-btn:last-child {
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .toggle-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Coverage Board */
+        .coverage-board {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .shift-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all 150ms;
+            border: 1px solid transparent;
+        }
+
+        .shift-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 6px rgba(15, 23, 42, 0.12);
+        }
+
+        .shift-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .shift-time {
+            font-weight: 600;
+            color: var(--color-neutral-900);
+            font-size: 16px;
+        }
+
+        .shift-role {
+            color: var(--color-neutral-500);
+            font-size: 14px;
+            margin-top: var(--spacing-xs);
+        }
+
+        .shift-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .assignment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .person-token {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: rgba(37, 99, 235, 0.12);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-filled {
+            background: rgba(22, 163, 74, 0.12);
+            color: var(--color-success);
+        }
+
+        .status-partial {
+            background: rgba(245, 158, 11, 0.16);
+            color: var(--color-warning);
+        }
+
+        .status-gap {
+            background: rgba(220, 38, 38, 0.16);
+            color: var(--color-error);
+        }
+
+        .status-draft {
+            background: rgba(107, 114, 128, 0.12);
+            color: var(--color-neutral-500);
+        }
+
+        .conflict-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid var(--color-error);
+            background: transparent;
+            border-radius: var(--radius-sm);
+            color: var(--color-error);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .shift-notes {
+            color: var(--color-neutral-500);
+            font-size: 14px;
+            font-style: italic;
+            margin-top: var(--spacing-xs);
+        }
+
+        .assign-button {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: transparent;
+            border: 1px dashed var(--color-primary);
+            border-radius: var(--radius-sm);
+            color: var(--color-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .assign-button:hover {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        /* Staff Portal */
+        .staff-portal {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .welcome-banner h1 {
+            color: white;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .welcome-banner p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .action-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--color-warning);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .shift-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .staff-shift-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--color-neutral-200);
+            transition: all 150ms;
+        }
+
+        .staff-shift-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 6px rgba(15, 23, 42, 0.12);
+        }
+
+        .shift-date {
+            color: var(--color-neutral-500);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .shift-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-neutral-900);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .shift-location {
+            color: var(--color-neutral-500);
+            font-size: 14px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .shift-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        /* People Directory */
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        .person-card {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--color-neutral-200);
+            transition: all 150ms;
+            cursor: pointer;
+        }
+
+        .person-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 6px rgba(15, 23, 42, 0.12);
+        }
+
+        .person-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .person-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .person-info h3 {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .role-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .role-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--color-primary);
+            border-radius: var(--radius-sm);
+            text-transform: uppercase;
+        }
+
+        .person-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--color-neutral-200);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-neutral-900);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-neutral-500);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 200ms;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 480px;
+            max-width: 100%;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            transition: right 200ms;
+            overflow: hidden;
+        }
+
+        .drawer.active {
+            right: 0;
+        }
+
+        .drawer-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-neutral-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-lg);
+        }
+
+        .drawer-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .drawer-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-neutral-500);
+            margin-bottom: var(--spacing-md);
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-neutral-700);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            transition: all 150ms;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .staff-search {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--color-neutral-200);
+            border-radius: var(--radius-sm);
+            margin-top: var(--spacing-xs);
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .search-result-item {
+            padding: var(--spacing-sm) var(--spacing-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            transition: all 150ms;
+        }
+
+        .search-result-item:hover {
+            background: var(--color-background);
+        }
+
+        .availability-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .available {
+            background: var(--color-success);
+        }
+
+        .unavailable {
+            background: var(--color-error);
+        }
+
+        .maybe-available {
+            background: var(--color-warning);
+        }
+
+        .suggested-matches {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .match-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-sm);
+            background: var(--color-background);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .match-item:hover {
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .match-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .match-score {
+            background: var(--color-success);
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+        }
+
+        .drawer-footer {
+            padding: var(--spacing-lg);
+            border-top: 1px solid var(--color-neutral-200);
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--color-neutral-500);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 150ms;
+        }
+
+        .close-button:hover {
+            background: var(--color-background);
+            color: var(--color-neutral-700);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: center;
+            gap: var(--spacing-md);
+            min-width: 300px;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideIn 200ms;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .toast-success {
+            border-left: 4px solid var(--color-success);
+        }
+
+        .toast-error {
+            border-left: 4px solid var(--color-error);
+        }
+
+        .toast-info {
+            border-left: 4px solid var(--color-primary);
+        }
+
+        /* Filters Panel */
+        .filters-panel {
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                display: none;
+            }
+
+            .view-switcher {
+                order: 1;
+                width: 100%;
+            }
+
+            .context-bar {
+                flex-wrap: wrap;
+                height: auto;
+            }
+
+            .context-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .main-content {
+                padding: var(--spacing-md);
+            }
+
+            .drawer {
+                width: 100%;
+                right: -100%;
+            }
+
+            .shift-header {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+
+            .shift-grid,
+            .people-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- App Bar -->
+    <div class="app-bar">
+        <div class="app-bar-left">
+            <div class="app-name">
+                Scheduler
+                <span class="demo-badge">Demo</span>
+            </div>
+            <nav class="nav-tabs">
+                <a href="#" class="nav-tab active" onclick="switchModule('coverage')">Daily Coverage</a>
+                <a href="#" class="nav-tab" onclick="switchModule('shifts')">Shifts</a>
+                <a href="#" class="nav-tab" onclick="switchModule('people')">People</a>
+                <a href="#" class="nav-tab" onclick="switchModule('settings')">Settings</a>
+            </nav>
+        </div>
+        <div class="app-bar-right">
+            <div class="view-switcher">
+                <button class="view-option active" onclick="switchRole('coordinator')">Coordinator</button>
+                <button class="view-option" onclick="switchRole('staff')">Staff View</button>
+            </div>
+            <div class="notification-badge" title="3 notifications" onclick="showToast('You have 3 new notifications', 'info')">
+                🔔
+                <div class="notification-dot"></div>
+            </div>
+            <div class="user-menu" title="Admin User">AU</div>
+        </div>
+    </div>
+
+    <!-- Coordinator View -->
+    <div id="coordinatorView">
+        <!-- Context Bar -->
+        <div class="context-bar">
+            <div class="context-control">
+                <span class="small" style="color: var(--color-neutral-500);">Unit:</span>
+                <button class="select-button">
+                    Sunrise West
+                    <span>▼</span>
+                </button>
+            </div>
+
+            <div class="context-control">
+                <span class="small" style="color: var(--color-neutral-500);">Date:</span>
+                <div class="date-nav">
+                    <button class="icon-button" title="Previous day">◀</button>
+                    <div class="date-display">Mon Jun 3, 2025</div>
+                    <button class="icon-button" title="Next day">▶</button>
+                </div>
+            </div>
+
+            <div class="context-actions">
+                <button class="btn btn-secondary" onclick="toggleFilters()">
+                    <span>⚙︎</span>
+                    Filters
+                </button>
+                <button class="btn btn-primary" onclick="showToast('Schedule published successfully!', 'success')">
+                    <span>⚑</span>
+                    Publish
+                </button>
+            </div>
+        </div>
+
+        <!-- Coverage Module -->
+        <div id="coverageModule" class="main-content">
+            <!-- Filters Panel -->
+            <div id="filtersPanel" class="filters-panel hidden">
+                <h3 style="margin-bottom: var(--spacing-md);">Filters</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-input">
+                            <option>All Statuses</option>
+                            <option>Filled</option>
+                            <option>Partial</option>
+                            <option>Gap</option>
+                            <option>Draft</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-input">
+                            <option>All Roles</option>
+                            <option>RN</option>
+                            <option>Counselor</option>
+                            <option>Support Staff</option>
+                            <option>Activities Coordinator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Show Conflicts Only</label>
+                        <select class="form-input">
+                            <option>No</option>
+                            <option>Yes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>Daily Coverage - Sunrise West</h2>
+                <div style="display: flex; gap: var(--spacing-md); align-items: center;">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" onclick="switchView('board')">Board</button>
+                        <button class="toggle-btn" onclick="switchView('list')">List</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="openDrawer('new')">+ New Shift</button>
+                </div>
+            </div>
+
+            <div class="coverage-board">
+                <!-- Shift Card 1: Filled -->
+                <div class="shift-card" onclick="openDrawer('edit')">
+                    <div class="shift-header">
+                        <div>
+                            <div class="shift-time">08:00 - 12:00</div>
+                            <div class="shift-role">RN (2 needed)</div>
+                        </div>
+                        <span class="status-badge status-filled">
+                            <span>✓</span>
+                            Filled
+                        </span>
+                    </div>
+                    <div class="shift-body">
+                        <div class="assignment-list">
+                            <div class="person-token">
+                                <div class="avatar">ES</div>
+                                Emily Sanders
+                            </div>
+                            <div class="person-token">
+                                <div class="avatar">MJ</div>
+                                Michael Jones
+                            </div>
+                        </div>
+                        <div class="shift-notes">Notes: Medication cart rounds</div>
+                    </div>
+                </div>
+
+                <!-- Shift Card 2: Partial -->
+                <div class="shift-card" onclick="openDrawer('partial')">
+                    <div class="shift-header">
+                        <div>
+                            <div class="shift-time">12:00 - 16:00</div>
+                            <div class="shift-role">Counselor (2 needed)</div>
+                        </div>
+                        <span class="status-badge status-partial">
+                            <span>⚠</span>
+                            1 Spot Open
+                        </span>
+                    </div>
+                    <div class="shift-body">
+                        <div class="assignment-list">
+                            <div class="person-token">
+                                <div class="avatar">LW</div>
+                                Lisa Williams
+                            </div>
+                            <button class="assign-button" onclick="event.stopPropagation(); openDrawer('partial')">+ Assign</button>
+                        </div>
+                        <div class="shift-notes">Notes: Group therapy session</div>
+                    </div>
+                </div>
+
+                <!-- Shift Card 3: Gap -->
+                <div class="shift-card" onclick="openDrawer('gap')">
+                    <div class="shift-header">
+                        <div>
+                            <div class="shift-time">16:00 - 20:00</div>
+                            <div class="shift-role">Support Staff (1 needed)</div>
+                        </div>
+                        <span class="status-badge status-gap">
+                            <span>✱</span>
+                            Gap
+                        </span>
+                    </div>
+                    <div class="shift-body">
+                        <div class="assignment-list">
+                            <button class="assign-button" onclick="event.stopPropagation(); openDrawer('gap')">+ Assign Staff</button>
+                            <button class="btn-secondary" style="border: 1px solid var(--color-primary); font-size: 14px; padding: var(--spacing-xs) var(--spacing-sm);" onclick="event.stopPropagation(); openDrawer('gap')">View Matches</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shift Card 4: Conflict -->
+                <div class="shift-card" onclick="openDrawer('conflict')">
+                    <div class="shift-header">
+                        <div>
+                            <div class="shift-time">20:00 - 00:00</div>
+                            <div class="shift-role">Night Monitor (1 needed)</div>
+                        </div>
+                        <span class="status-badge status-filled">
+                            <span>✓</span>
+                            Filled
+                        </span>
+                    </div>
+                    <div class="shift-body">
+                        <div class="assignment-list">
+                            <div class="person-token">
+                                <div class="avatar">DT</div>
+                                David Thompson
+                            </div>
+                            <span class="conflict-chip">
+                                <span>⚠</span>
+                                Max hours exceeded
+                            </span>
+                        </div>
+                        <div class="shift-notes">Notes: Overnight supervision</div>
+                    </div>
+                </div>
+
+                <!-- Shift Card 5: Draft -->
+                <div class="shift-card" onclick="openDrawer('draft')">
+                    <div class="shift-header">
+                        <div>
+                            <div class="shift-time">08:00 - 12:00</div>
+                            <div class="shift-role">Activities Coordinator (1 needed)</div>
+                        </div>
+                        <span class="status-badge status-draft">
+                            <span>📝</span>
+                            Draft
+                        </span>
+                    </div>
+                    <div class="shift-body">
+                        <div class="assignment-list">
+                            <button class="assign-button" onclick="event.stopPropagation(); openDrawer('draft')">+ Assign Staff</button>
+                        </div>
+                        <div class="shift-notes">Notes: Morning recreation program</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- People Module -->
+        <div id="peopleModule" class="main-content hidden">
+            <div class="section-header">
+                <h2>Staff & Volunteers</h2>
+                <button class="btn btn-primary" onclick="showToast('Add person form would open here', 'info')">+ Add Person</button>
+            </div>
+
+            <div class="filters-panel">
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-input" placeholder="Search by name...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-input">
+                            <option>All Roles</option>
+                            <option>RN</option>
+                            <option>Counselor</option>
+                            <option>Support Staff</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Availability</label>
+                        <select class="form-input">
+                            <option>All</option>
+                            <option>Available</option>
+                            <option>Limited</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="people-grid">
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar">ES</div>
+                        <div class="person-info">
+                            <h3>Emily Sanders</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">RN</span>
+                                <span class="role-tag">Lead</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">98%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar" style="background: var(--color-secondary);">MJ</div>
+                        <div class="person-info">
+                            <h3>Michael Jones</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">RN</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">10</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">95%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar" style="background: var(--color-success);">LW</div>
+                        <div class="person-info">
+                            <h3>Lisa Williams</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">Counselor</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">100%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar" style="background: var(--color-warning);">DT</div>
+                        <div class="person-info">
+                            <h3>David Thompson</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">Night Monitor</span>
+                                <span class="role-tag">Support</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">92%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar" style="background: #8B5CF6;">SM</div>
+                        <div class="person-info">
+                            <h3>Sarah Martinez</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">Activities</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">6</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">100%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="person-card" onclick="showToast('Person details would open here', 'info')">
+                    <div class="person-header">
+                        <div class="person-avatar" style="background: #EC4899;">JC</div>
+                        <div class="person-info">
+                            <h3>James Chen</h3>
+                            <div class="role-tags">
+                                <span class="role-tag">Counselor</span>
+                                <span class="role-tag">Support</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="person-stats">
+                        <div class="stat">
+                            <div class="stat-value">11</div>
+                            <div class="stat-label">This Week</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">97%</div>
+                            <div class="stat-label">Attendance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shifts Module Placeholder -->
+        <div id="shiftsModule" class="main-content hidden">
+            <div class="section-header">
+                <h2>Shift Management</h2>
+                <button class="btn btn-primary" onclick="showToast('New shift form would open', 'info')">+ New Shift</button>
+            </div>
+            <div style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-md); text-align: center; color: var(--color-neutral-500);">
+                <p style="margin-bottom: var(--spacing-md);">📅 Calendar and list view for all shifts would be displayed here.</p>
+                <p>Features: Weekly/monthly calendar, filter by unit/role, bulk operations</p>
+            </div>
+        </div>
+
+        <!-- Settings Module Placeholder -->
+        <div id="settingsModule" class="main-content hidden">
+            <div class="section-header">
+                <h2>Settings</h2>
+            </div>
+            <div style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-md);">
+                <div style="display: grid; gap: var(--spacing-lg);">
+                    <div style="padding: var(--spacing-lg); background: var(--color-background); border-radius: var(--radius-sm);">
+                        <h3 style="margin-bottom: var(--spacing-sm);">⚙️ System Settings</h3>
+                        <p style="color: var(--color-neutral-500);">Manage units, rooms, and shift templates</p>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background: var(--color-background); border-radius: var(--radius-sm);">
+                        <h3 style="margin-bottom: var(--spacing-sm);">👥 Roles & Permissions</h3>
+                        <p style="color: var(--color-neutral-500);">Configure roles and access levels</p>
+                    </div>
+                    <div style="padding: var(--spacing-lg); background: var(--color-background); border-radius: var(--radius-sm);">
+                        <h3 style="margin-bottom: var(--spacing-sm);">📋 Audit Log</h3>
+                        <p style="color: var(--color-neutral-500);">View system activity and changes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff View -->
+    <div id="staffView" class="hidden">
+        <div class="main-content staff-portal">
+            <div class="welcome-banner">
+                <h1>Hello, Maya! 👋</h1>
+                <p>Next shift: Tuesday, June 4 · 12:00 - 16:00</p>
+            </div>
+
+            <div class="action-banner">
+                <span style="font-size: 24px;">⚠️</span>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Action needed</div>
+                    <div style="font-size: 14px; color: var(--color-neutral-700);">Please update your availability for next week</div>
+                </div>
+                <button class="btn btn-primary" onclick="showToast('Availability updated', 'success')">Update Now</button>
+            </div>
+
+            <div class="section-header">
+                <h2>Upcoming Shifts</h2>
+                <button class="btn btn-secondary" onclick="showToast('Calendar view would open', 'info')">View Calendar</button>
+            </div>
+
+            <div class="shift-grid">
+                <div class="staff-shift-card" style="border-left: 3px solid var(--color-warning);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div class="shift-date">MONDAY, JUN 3</div>
+                        <span class="status-badge status-draft">Pending</span>
+                    </div>
+                    <div class="shift-title">Counselor</div>
+                    <div class="shift-location">Sunrise West · 08:00 - 12:00</div>
+                    <div style="font-size: 14px; color: var(--color-neutral-500); margin-top: var(--spacing-sm);">
+                        Group therapy session
+                    </div>
+                    <div class="shift-actions">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="showToast('Shift accepted!', 'success')">Accept</button>
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="showToast('Shift declined', 'info')">Decline</button>
+                    </div>
+                </div>
+
+                <div class="staff-shift-card" style="border-left: 3px solid var(--color-success);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div class="shift-date">TUESDAY, JUN 4</div>
+                        <span class="status-badge status-filled">Confirmed</span>
+                    </div>
+                    <div class="shift-title">Counselor</div>
+                    <div class="shift-location">Sunrise West · 12:00 - 16:00</div>
+                    <div style="font-size: 14px; color: var(--color-neutral-500); margin-top: var(--spacing-sm);">
+                        Individual sessions
+                    </div>
+                    <div class="shift-actions">
+                        <button class="btn btn-secondary" style="flex: 1;" onclick="showToast('Shift details would display here', 'info')">View Details</button>
+                    </div>
+                </div>
+
+                <div class="staff-shift-card" style="border-left: 3px solid var(--color-success);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div class="shift-date">WEDNESDAY, JUN 5</div>
+                        <span class="status-badge status-filled">Confirmed</span>
+                    </div>
+                    <div class="shift-title">Counselor</div>
+                    <div class="shift-location">Meadow View · 08:00 - 12:00</div>
+                    <div style="font-size: 14px; color: var(--color-neutral-500); margin-top: var(--spacing-sm);">
+                        Morning check-ins
+                    </div>
+                    <div class="shift-actions">
+                        <button class="btn btn-secondary" style="flex: 1;">View Details</button>
+                    </div>
+                </div>
+
+                <div class="staff-shift-card" style="border-left: 3px solid var(--color-primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-sm);">
+                        <div class="shift-date">THURSDAY, JUN 6</div>
+                        <span class="status-badge status-filled">Confirmed</span>
+                    </div>
+                    <div class="shift-title">Counselor</div>
+                    <div class="shift-location">Sunrise West · 12:00 - 16:00</div>
+                    <div style="font-size: 14px; color: var(--color-neutral-500); margin-top: var(--spacing-sm);">
+                        Group therapy session
+                    </div>
+                    <div class="shift-actions">
+                        <button class="btn btn-secondary" style="flex: 1;">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: var(--spacing-xl);">
+                <h2>My Availability</h2>
+                <button class="btn btn-primary" onclick="showToast('Availability editor would open', 'info')">Update Availability</button>
+            </div>
+
+            <div style="background: white; padding: var(--spacing-xl); border-radius: var(--radius-md); box-shadow: var(--shadow-sm);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--spacing-md);">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Monday</div>
+                        <div style="font-size: 14px; color: var(--color-success);">✓ Available</div>
+                        <div style="font-size: 14px; color: var(--color-neutral-500);">08:00 - 17:00</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Tuesday</div>
+                        <div style="font-size: 14px; color: var(--color-success);">✓ Available</div>
+                        <div style="font-size: 14px; color: var(--color-neutral-500);">08:00 - 17:00</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Wednesday</div>
+                        <div style="font-size: 14px; color: var(--color-success);">✓ Available</div>
+                        <div style="font-size: 14px; color: var(--color-neutral-500);">08:00 - 17:00</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Thursday</div>
+                        <div style="font-size: 14px; color: var(--color-warning);">⚠ Limited</div>
+                        <div style="font-size: 14px; color: var(--color-neutral-500);">12:00 - 17:00</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: var(--spacing-xs);">Friday</div>
+                        <div style="font-size: 14px; color: var(--color-error);">✗ Unavailable</div>
+                        <div style="font-size: 14px; color: var(--color-neutral-500);">PTO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drawer (Shift Editor) -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <h3 id="drawerTitle">Edit Shift</h3>
+            <button class="close-button" onclick="closeDrawer()">×</button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-section">
+                <div class="drawer-section-title">Basics</div>
+                <div class="form-group">
+                    <label class="form-label">Unit</label>
+                    <select class="form-input">
+                        <option>Sunrise West</option>
+                        <option>Sunrise East</option>
+                        <option>Meadow View</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-input">
+                        <option>RN</option>
+                        <option>Counselor</option>
+                        <option>Support Staff</option>
+                        <option>Night Monitor</option>
+                        <option>Activities Coordinator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" value="2025-06-03">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md);">
+                    <div class="form-group">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" class="form-input" value="08:00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Time</label>
+                        <input type="time" class="form-input" value="12:00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Headcount Needed</label>
+                    <input type="number" class="form-input" value="2" min="1">
+                </div>
+            </div>
+
+            <div class="drawer-section" id="assignmentSection">
+                <div class="drawer-section-title">Assignments</div>
+                <div class="form-group">
+                    <label class="form-label">Assigned Staff</label>
+                    <div id="assignedStaff" style="display: flex; flex-direction: column; gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                        <div class="person-token" style="justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                <div class="avatar">ES</div>
+                                Emily Sanders
+                            </div>
+                            <button style="background: none; border: none; cursor: pointer; color: var(--color-neutral-500); font-size: 18px;" onclick="event.stopPropagation(); showToast('Staff removed', 'info')">×</button>
+                        </div>
+                        <div class="person-token" style="justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                <div class="avatar">MJ</div>
+                                Michael Jones
+                            </div>
+                            <button style="background: none; border: none; cursor: pointer; color: var(--color-neutral-500); font-size: 18px;" onclick="event.stopPropagation(); showToast('Staff removed', 'info')">×</button>
+                        </div>
+                    </div>
+                    <div class="staff-search">
+                        <input type="text" class="form-input" placeholder="Search staff..." onfocus="showSearchResults()" onblur="setTimeout(hideSearchResults, 200)">
+                        <div class="search-results hidden" id="searchResults">
+                            <div class="search-result-item" onclick="showToast('Staff member added', 'success')">
+                                <div class="availability-indicator available"></div>
+                                <div class="avatar" style="background: var(--color-success);">LW</div>
+                                <div>
+                                    <div style="font-weight: 500;">Lisa Williams</div>
+                                    <div style="font-size: 12px; color: var(--color-neutral-500);">Counselor · Available</div>
+                                </div>
+                            </div>
+                            <div class="search-result-item" onclick="showToast('Staff member added', 'success')">
+                                <div class="availability-indicator maybe-available"></div>
+                                <div class="avatar" style="background: var(--color-warning);">DT</div>
+                                <div>
+                                    <div style="font-weight: 500;">David Thompson</div>
+                                    <div style="font-size: 12px; color: var(--color-neutral-500);">Support · Limited (30h this week)</div>
+                                </div>
+                            </div>
+                            <div class="search-result-item" onclick="showToast('Staff unavailable on this date', 'error')">
+                                <div class="availability-indicator unavailable"></div>
+                                <div class="avatar" style="background: #8B5CF6;">SM</div>
+                                <div>
+                                    <div style="font-weight: 500;">Sarah Martinez</div>
+                                    <div style="font-size: 12px; color: var(--color-neutral-500);">Activities · Unavailable</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="suggestedMatches" style="display: none;">
+                    <label class="form-label">Suggested Matches</label>
+                    <div class="suggested-matches">
+                        <div class="match-item" onclick="showToast('Staff member assigned', 'success')">
+                            <div class="match-info">
+                                <div class="avatar" style="background: var(--color-success);">LW</div>
+                                <div>
+                                    <div style="font-weight: 500; font-size: 14px;">Lisa Williams</div>
+                                    <div style="font-size: 12px; color: var(--color-neutral-500);">10h this week · Available</div>
+                                </div>
+                            </div>
+                            <span class="match-score">95%</span>
+                        </div>
+                        <div class="match-item" onclick="showToast('Staff member assigned', 'success')">
+                            <div class="match-info">
+                                <div class="avatar" style="background: #EC4899;">JC</div>
+                                <div>
+                                    <div style="font-weight: 500; font-size: 14px;">James Chen</div>
+                                    <div style="font-size: 12px; color: var(--color-neutral-500);">12h this week · Available</div>
+                                </div>
+                            </div>
+                            <span class="match-score" style="background: var(--color-warning);">78%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-section">
+                <div class="drawer-section-title">Checks</div>
+                <div id="conflictStatus" style="padding: var(--spacing-md); background: rgba(22, 163, 74, 0.08); border-radius: var(--radius-sm); border-left: 3px solid var(--color-success);">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-sm); color: var(--color-success); font-weight: 500;">
+                        <span>✓</span>
+                        No conflicts detected
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-section">
+                <div class="drawer-section-title">Notes</div>
+                <div class="form-group">
+                    <textarea class="form-input" rows="3" placeholder="Add notes or special instructions...">Medication cart rounds</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="drawer-footer">
+            <button class="btn btn-secondary" style="flex: 1;" onclick="closeDrawer()">Cancel</button>
+            <button class="btn btn-secondary" style="flex: 1;" onclick="showToast('Draft saved', 'info')">Save Draft</button>
+            <button class="btn btn-primary" style="flex: 1;" onclick="publishShift()">Publish</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div id="toastIcon" style="width: 24px; height: 24px; background: var(--color-success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600;">✓</div>
+        <div style="flex: 1;">
+            <div id="toastTitle" style="font-weight: 600;">Success</div>
+            <div id="toastMessage" style="font-size: 14px; color: var(--color-neutral-500);">Action completed</div>
+        </div>
+    </div>
+
+    <script>
+        // Current state
+        let currentRole = 'coordinator';
+        let currentModule = 'coverage';
+
+        // Switch between coordinator and staff views
+        function switchRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.view-option').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (role === 'coordinator') {
+                document.getElementById('coordinatorView').classList.remove('hidden');
+                document.getElementById('staffView').classList.add('hidden');
+            } else {
+                document.getElementById('coordinatorView').classList.add('hidden');
+                document.getElementById('staffView').classList.remove('hidden');
+            }
+        }
+
+        // Switch between modules
+        function switchModule(module) {
+            currentModule = module;
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Hide all modules
+            document.getElementById('coverageModule').classList.add('hidden');
+            document.getElementById('peopleModule').classList.add('hidden');
+            document.getElementById('shiftsModule').classList.add('hidden');
+            document.getElementById('settingsModule').classList.add('hidden');
+
+            // Show selected module
+            document.getElementById(module + 'Module').classList.remove('hidden');
+        }
+
+        // Toggle filters
+        function toggleFilters() {
+            document.getElementById('filtersPanel').classList.toggle('hidden');
+        }
+
+        // Switch view (board/list)
+        function switchView(view) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            showToast(`Switched to ${view} view`, 'info');
+        }
+
+        // Drawer functions
+        function openDrawer(type) {
+            document.getElementById('drawer').classList.add('active');
+            document.getElementById('drawerOverlay').classList.add('active');
+
+            // Customize drawer based on type
+            if (type === 'new') {
+                document.getElementById('drawerTitle').textContent = 'New Shift';
+                document.getElementById('assignedStaff').innerHTML = '<p style="color: var(--color-neutral-500); font-size: 14px;">No staff assigned yet</p>';
+                document.getElementById('suggestedMatches').style.display = 'block';
+            } else if (type === 'gap') {
+                document.getElementById('drawerTitle').textContent = 'Fill Shift Gap';
+                document.getElementById('assignedStaff').innerHTML = '<p style="color: var(--color-neutral-500); font-size: 14px;">No staff assigned yet</p>';
+                document.getElementById('suggestedMatches').style.display = 'block';
+            } else if (type === 'partial') {
+                document.getElementById('drawerTitle').textContent = 'Complete Shift Assignment';
+                document.getElementById('suggestedMatches').style.display = 'block';
+            } else if (type === 'conflict') {
+                document.getElementById('drawerTitle').textContent = 'Resolve Conflict';
+                document.getElementById('conflictStatus').innerHTML = `
+                    <div style="display: flex; align-items: start; gap: var(--spacing-sm); color: var(--color-error); font-weight: 500;">
+                        <span>⚠</span>
+                        <div>
+                            <div>David Thompson exceeds 40 hours this week</div>
+                            <div style="font-size: 14px; font-weight: normal; margin-top: var(--spacing-xs);">
+                                Current: 38h | This shift: +4h = 42h total
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('conflictStatus').style.background = 'rgba(220, 38, 38, 0.08)';
+                document.getElementById('conflictStatus').style.borderLeft = '3px solid var(--color-error)';
+                document.getElementById('suggestedMatches').style.display = 'block';
+            } else {
+                document.getElementById('drawerTitle').textContent = 'Edit Shift';
+                document.getElementById('suggestedMatches').style.display = 'none';
+            }
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawer').classList.remove('active');
+            document.getElementById('drawerOverlay').classList.remove('active');
+        }
+
+        function publishShift() {
+            showToast('Shift published successfully! Staff notified.', 'success');
+            setTimeout(closeDrawer, 1500);
+        }
+
+        // Search functions
+        function showSearchResults() {
+            document.getElementById('searchResults').classList.remove('hidden');
+        }
+
+        function hideSearchResults() {
+            document.getElementById('searchResults').classList.add('hidden');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+
+            // Reset classes
+            toast.className = 'toast';
+
+            // Set content based on type
+            if (type === 'success') {
+                toast.classList.add('toast-success');
+                toastIcon.style.background = 'var(--color-success)';
+                toastIcon.textContent = '✓';
+                toastTitle.textContent = 'Success';
+            } else if (type === 'error') {
+                toast.classList.add('toast-error');
+                toastIcon.style.background = 'var(--color-error)';
+                toastIcon.textContent = '✗';
+                toastTitle.textContent = 'Error';
+            } else if (type === 'info') {
+                toast.classList.add('toast-info');
+                toastIcon.style.background = 'var(--color-primary)';
+                toastIcon.textContent = 'ℹ';
+                toastTitle.textContent = 'Info';
+            }
+
+            toastMessage.textContent = message;
+
+            // Show toast
+            toast.classList.add('show');
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close drawer on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDrawer();
+            }
+        });
+    </script>
+</body>
+</html>
